@@ -7,6 +7,7 @@
 int mainwindowwidth = 250;
 int mainwindowheight = 125;
 
+
 HWND mainwindowhandle; //declare window handle
 HWND edithandle; //declares edit handle, since each "field" of a window needs its own handle. This is for the text box.
 
@@ -15,7 +16,9 @@ WNDPROC editoriginalwndproc; //used to store pointer to EDIT classes wndproc
 
 MSG msg; //initialize a struct of type MSG to hold the message data
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); //func declaration
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); //func declarations
+LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+char *ConvertSpaces(char *buffer, size_t buffersize);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){ //standard winmain function
 
@@ -30,7 +33,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     //creates window handle for our Specific window, lots of args see winapi docs for info
     mainwindowhandle = CreateWindowEx(0, windowclass.lpszClassName,"MC WikiSearch", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, mainwindowwidth, mainwindowheight, NULL, NULL, hInstance, NULL);
     edithandle = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 10, 10, mainwindowwidth - 35, 25, mainwindowhandle, NULL, hInstance, NULL); //actually creates the text box using the built in windows class EDIT.
-
+    
+    editoriginalwndproc = (WNDPROC)SetWindowLongPtr(edithandle, GWLP_WNDPROC, (LONG_PTR)EditSubclassProc); //gets pointer to original wndproc (returned by SetWindowLongPtr) and replaces it with EditSubclassProc.
 
 
 
@@ -59,3 +63,31 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){ 
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
+
+LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    char buffer[256];
+
+    if(msg == WM_KEYDOWN && wParam == VK_RETURN){
+        //code for wiki
+       GetWindowText(hwnd, buffer, sizeof(buffer) - 1);
+       //MessageBox(NULL, buffer, "Debug", MB_OK);
+        char url[256];
+       sprintf(url, "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, sizeof(buffer) - 1));
+
+       MessageBox(NULL, url, "Debug", MB_OK);
+
+        return 0; //needed because when wndproc is called it returns 
+    }
+    
+    
+    return CallWindowProc(editoriginalwndproc, hwnd, msg, wParam, lParam); //winapi function to get pointer to the handle's windowproc
+}
+
+    char *ConvertSpaces(char *buffer, size_t buffersize){
+        for(int i = 1; i < buffersize; i++){
+            if(buffer[i] == ' '){
+                buffer[i] = '_';
+            }
+        }
+        return buffer;
+    }
