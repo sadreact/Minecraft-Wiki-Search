@@ -75,7 +75,7 @@ LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
        GetWindowText(hwnd, buffer, sizeof(buffer) - 1);
        //MessageBox(NULL, buffer, "Debug", MB_OK);
         char url[256];
-       snprintf(url, sizeof(url), "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, sizeof(buffer)));
+       snprintf(url, sizeof(url), "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, strlen(buffer)));
 
        ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
        SetWindowText(hwnd, "");
@@ -91,7 +91,7 @@ LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 }
 
     char *ConvertSpaces(char *buffer, size_t buffersize){
-        for(int i = 0; i < buffersize; i++){
+        for(int i = 0; i <= buffersize; i++){
             if(buffer[i] == ' '){
                 buffer[i] = '_';
             }
