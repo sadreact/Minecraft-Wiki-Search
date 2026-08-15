@@ -74,7 +74,11 @@ LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         char url[256];
        sprintf(url, "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, sizeof(buffer) - 1));
 
-       MessageBox(NULL, url, "Debug", MB_OK);
+       ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+       SetWindowText(hwnd, "");
+       ShowWindow(hwnd, SW_HIDE);
+
+       //MessageBox(NULL, url, "Debug", MB_OK);
 
         return 0; //needed because when wndproc is called it returns 
     }
