@@ -4,8 +4,8 @@
 #include <windows.h>
 #include <shellapi.h>
 
-int mainwindowwidth = 250;
-int mainwindowheight = 125;
+const int mainwindowwidth = 250;
+const int mainwindowheight = 125;
 
 
 HWND mainwindowhandle; //declare window handle
@@ -44,13 +44,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         
         if (msg.message == WM_HOTKEY){ //checks for hotkey pressed messages
 
-            ShowWindow(mainwindowhandle, SW_SHOW); //spawns (shows) window on hotkey detected    
+            ShowWindow(mainwindowhandle, SW_SHOW); //spawns (shows) window on hotkey detected   
+            SetForegroundWindow(mainwindowhandle);
+            SetFocus(edithandle); 
         } 
 
         TranslateMessage(&msg); //translates message used for text entry later
         DispatchMessage(&msg); //dispatches message (calls WindowProc)
      }
     
+
      return 0;
 
 }
@@ -72,11 +75,11 @@ LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
        GetWindowText(hwnd, buffer, sizeof(buffer) - 1);
        //MessageBox(NULL, buffer, "Debug", MB_OK);
         char url[256];
-       sprintf(url, "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, sizeof(buffer) - 1));
+       snprintf(url, sizeof(url), "https://minecraft.wiki/w/%s", ConvertSpaces(buffer, sizeof(buffer)));
 
        ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
        SetWindowText(hwnd, "");
-       ShowWindow(hwnd, SW_HIDE);
+       ShowWindow(mainwindowhandle, SW_HIDE);
 
        //MessageBox(NULL, url, "Debug", MB_OK);
 
@@ -88,7 +91,7 @@ LRESULT CALLBACK EditSubclassProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 }
 
     char *ConvertSpaces(char *buffer, size_t buffersize){
-        for(int i = 1; i < buffersize; i++){
+        for(int i = 0; i < buffersize; i++){
             if(buffer[i] == ' '){
                 buffer[i] = '_';
             }
